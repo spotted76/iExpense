@@ -62,7 +62,7 @@ struct ContentView: View {
                          .extraStyling(for: item.amount)
                    }
                 }
-                .onDelete(perform: removePersonal(at:))
+                .onDelete(perform: deleteItem(for: "Personal"))
              } header: {
                 Text("Personal")
              }
@@ -81,7 +81,7 @@ struct ContentView: View {
                          .extraStyling(for: item.amount)
                    }
                 }
-                .onDelete(perform: removeBusiness(at:))
+                .onDelete(perform: deleteItem(for: "Business"))
              } header : {
                 Text("Business")
              }
@@ -101,26 +101,32 @@ struct ContentView: View {
        
     }
    
-   func removeItem(at offsets: IndexSet) {
-      expenses.items.remove(atOffsets: offsets)
-   }
    
-   func removePersonal(at offsets: IndexSet) {
-      if let personalIndex = offsets.first {
-         let personalElement = personalExpenses[personalIndex]
-         if let expenseIndex = expenses.items.firstIndex(where: {$0.id == personalElement.id}) {
-            expenses.items.remove(at: expenseIndex)
+   func deleteItem(for category: String) -> (_ offsets: IndexSet) -> Void {
+      
+      //Create an inner function to return
+      func removeItem(offsets: IndexSet) {
+         if let index = offsets.first {
+            
+            //Based on the passed category string, point to the proper calculated property
+            let elements : [ExpenseItem]
+            if category == "Personal" {
+               elements = personalExpenses
+            }
+            else {
+               elements = businessExpenses
+            }
+            
+            //Now use a common method to find and delete the element from the overall array
+            let element = elements[index]
+            if let expenseIndex = expenses.items.firstIndex(where: {$0.id == element.id}) {
+               expenses.items.remove(at: expenseIndex)
+            }
          }
       }
-   }
-   
-   func removeBusiness(at offsets: IndexSet) {
-      if let buisinessIndex = offsets.first {
-         let businessElement = businessExpenses[buisinessIndex]
-         if let expenseIndex = expenses.items.firstIndex(where: {$0.id == businessElement.id}) {
-            expenses.items.remove(at: expenseIndex)
-         }
-      }
+      
+      return removeItem
+      
    }
    
 }
